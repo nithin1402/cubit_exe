@@ -6,10 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(MultiBlocProvider(providers: [
-    BlocProvider(create: (_) => ListCubit()),
-    //BlocProvider(create: (_)=>CounterCubit())
-  ], child: MyApp()));
+  runApp(
+    BlocProvider(create: (_) => ListCubit(), child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {

@@ -1,4 +1,5 @@
 
+import 'package:cubit_exe/dbhelper.dart';
 import 'package:cubit_exe/list_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
@@ -16,24 +17,26 @@ class ListCubit extends Cubit<ListState>{
   static final String NOTE_COLUMN_DESC="desc";
   static final String NOTE_COLUMN_ID="id";
 
-  Future<Database> initDB() async{
-    mDb =mDb ?? await openDB();
-    return mDb!;
-  }
+  Dbhelper dbhelper=Dbhelper.instance;
 
-  Future<Database> openDB() async{
-    var dirPath= await getApplicationDocumentsDirectory();
-    var dbPath=join(dirPath.path,TABLE_NOTE);
-
-    return openDatabase(dbPath,version: 1,onCreate: (db,version){
-      db.execute("create table $TABLE_NOTE ($NOTE_COLUMN_ID integer primary key autoincrement,$NOTE_COLUMN_DESC text,$NOTE_COLUMN_TITLE text)");
-    });
-  }
-
-
-    fetchAllNotes() async{
-    Database db=await initDB();
-    List<Map<String,dynamic>> cData=await db.query(TABLE_NOTE);
+  // Future<Database> initDB() async{
+  //   mDb =mDb ?? await openDB();
+  //   return mDb!;
+  // }
+  //
+  // Future<Database> openDB() async{
+  //   var dirPath= await getApplicationDocumentsDirectory();
+  //   var dbPath=join(dirPath.path,TABLE_NOTE);
+  //
+  //   return openDatabase(dbPath,version: 1,onCreate: (db,version){
+  //     db.execute("create table $TABLE_NOTE ($NOTE_COLUMN_ID integer primary key autoincrement,$NOTE_COLUMN_DESC text,$NOTE_COLUMN_TITLE text)");
+  //   });
+  // }
+  //
+  //
+    getInitialNotes() async{
+    //Database db=await initDB();
+    List<Map<String,dynamic>> cData=await dbhelper.fetchAllNotes();
     emit(ListState(mData: cData));
   }
 
@@ -41,13 +44,18 @@ class ListCubit extends Cubit<ListState>{
 
 
      addNote({required String title,required String desc}) async{
-    Database db=await initDB();
-    //List<Map<String,dynamic>> currentData=state.mData;
-    await db.insert(TABLE_NOTE,{
-      "title":title,
-      "desc":desc
-    });
-    fetchAllNotes();
+    bool check=await dbhelper.addNote(title: title, desc: desc);
+    if(check){
+      var mNotes=await dbhelper.fetchAllNotes();
+      emit(ListState(mData: mNotes));
+    }
+    // Database db=await initDB();
+    // //List<Map<String,dynamic>> currentData=state.mData;
+    // await db.insert(TABLE_NOTE,{
+    //   "title":title,
+    //   "desc":desc
+    // });
+    // fetchAllNotes();
     //emit(ListState(mData: fetchAllNotes()));
     //emit(ListState(mData: currentData));
 
@@ -68,21 +76,31 @@ class ListCubit extends Cubit<ListState>{
 
 
   updateData({required int id,required String title,required String desc})async{
-    Database db=await initDB();
-    db.update(TABLE_NOTE, {
-      "title" : title,
-      "desc" :desc
-    },where: "$NOTE_COLUMN_ID=?",whereArgs: [id]);
-    fetchAllNotes();
+    bool check= await dbhelper.updateData(id: id, title: title, desc: desc);
+    if(check){
+      var mNotes= await dbhelper.fetchAllNotes();
+      emit(ListState(mData: mNotes));
+    }
+    // Database db=await initDB();
+    // db.update(TABLE_NOTE, {
+    //   "title" : title,
+    //   "desc" :desc
+    // },where: "$NOTE_COLUMN_ID=?",whereArgs: [id]);
+    // fetchAllNotes();
     //emit(ListState(mData: fetchAllNotes()));
   }
 
   removeData({required int id})async{
-    Database db= await initDB();
-    db.delete(TABLE_NOTE,
-      where: "$NOTE_COLUMN_ID=?",whereArgs: ['$id']
-    );
-    fetchAllNotes();
+    bool check=await dbhelper.removeData(id: id);
+    if(check){
+      var mNotes=await dbhelper.fetchAllNotes();
+      emit(ListState(mData: mNotes));
+    }
+    // Database db= await initDB();
+    // db.delete(TABLE_NOTE,
+    //   where: "$NOTE_COLUMN_ID=?",whereArgs: ['$id']
+    // );
+    // fetchAllNotes();
     //emit(ListState(mData: fetchAllNotes()));
   }
 

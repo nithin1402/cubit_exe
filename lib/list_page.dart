@@ -21,14 +21,15 @@ class _ListPageState extends State<ListPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    context.read<ListCubit>().fetchAllNotes();
+    context.read<ListCubit>().getInitialNotes();
     //allData=context.watch<ListCubit>().fetchAllNotes();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    //mdata=context.watch<ListCubit>().state.mData;
+    //mdata=context.watch<ListCubi>().state.mData;
+    //context.read<ListCubit>().getInitialNotes();
     allData=context.watch<ListCubit>().state.mData;
 
     return Scaffold(
